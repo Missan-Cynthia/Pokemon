@@ -1,0 +1,5 @@
+# 保留本機原始 PNG，不上傳 GitHub。
+pokemon/
+
+# Windows 桌面系統檔。
+desktop.ini
