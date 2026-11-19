@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#14213d">
-  <title>寶可夢注音挑戰</title>
+  <title>寶可夢練習場</title>
   <link rel="icon" href="favicon-v2.ico">
   <link rel="apple-touch-icon" href="icon-v2.png">
   <style>
@@ -119,15 +119,109 @@
     @media (max-width:390px) { .key-row{gap:2px}.key{border-radius:5px}.key-zhuyin{font-size:18px}.mini-action{min-width:43px} }
     @media (min-width:1100px) { .battle-screen{padding:18px 0}.game{border-radius:28px;overflow:hidden} }
     @media (prefers-reduced-motion:reduce) { *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important} }
+    .wallet-bar { display:flex; justify-content:center; align-items:center; gap:12px; flex-wrap:wrap; padding:10px; background:#14213d; color:white; font-weight:800; }
+    .wallet-bar button { padding:6px 12px; border:0; border-radius:8px; color:#14213d; background:#fff; cursor:pointer; }
+    .duel-team { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin:12px 0; }
+    .duel-team button { min-width:0; padding:8px 4px; border:2px solid #cbd5e1; border-radius:12px; background:#eff6ff; color:#172033; font-weight:800; cursor:pointer; }
+    .duel-team button[aria-pressed="true"] { border-color:#2563eb; background:#dbeafe; }
+    .duel-team button:disabled { background:#e2e8f0; color:#475569; cursor:default; }
+    .duel-team button[data-tired] { filter:grayscale(1); }
+    .duel-team img { display:block; width:100%; height:56px; object-fit:contain; }
+    #duelOptions { max-height:260px; overflow:auto; }
+    #duelSearch { width:100%; margin:8px auto; }
+    .charge-panel { display:grid; justify-items:center; gap:7px; margin:10px auto 0; }
+    .charge-disc { --fill:0turn; --charge-color:#38bdf8; width:clamp(108px,28vw,142px); aspect-ratio:1; position:relative; isolation:isolate; display:grid; place-items:center; border:4px solid #334155; border-radius:50%; box-shadow:0 6px 0 #cbd5e1; background:#162339; color:#fff; }
+    .charge-disc::before { content:""; position:absolute; z-index:-1; inset:4px; border-radius:50%; background:conic-gradient(var(--charge-color) 0 var(--fill),#425571 var(--fill) 1turn); }
+    .charge-disc[data-full]::before { background:conic-gradient(#fa6b71,#ffcd56,#73ed96,#57d5ff,#9b80ff,#fa6b71); }
+    .charge-disc strong { display:grid; place-items:center; width:72%; aspect-ratio:1; border-radius:50%; background:#17243a; font-size:clamp(23px,5vw,30px); }
+    .charge-stats { display:flex; justify-content:center; gap:18px; color:#334155; font-weight:900; font-variant-numeric:tabular-nums; }
+    .charge-stats span { min-width:7ch; }
+    .duel-attack { margin:14px auto; }
+    #duelScreen { width:min(960px,calc(100% - 20px)); max-width:none; padding:clamp(10px,2.5vw,24px); }
+    #duelSetup,#duelTeam { max-width:560px; margin-inline:auto; }
+    .duel-arena { border-radius:20px; min-height:clamp(265px,45vw,440px); color:white; }
+    .duel-arena > .scene-name { position:absolute; top:10px; left:50%; translate:-50% 0; z-index:2; font-weight:800; white-space:nowrap; background:#172033dd; }
+    .duel-fighters { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); align-items:end; gap:8px; min-height:inherit; padding:48px 10px 18px; }
+    .duel-fighter { min-width:0; position:relative; display:grid; align-items:end; justify-items:center; }
+    .duel-fighter:last-child { align-self:center; }
+    .duel-image { width:min(100%,260px); height:clamp(105px,25vw,220px); object-fit:contain; filter:drop-shadow(0 13px 8px #0f172a90); }
+    .duel-status { position:relative; z-index:2; width:min(100%,225px); padding:8px; border-radius:12px; background:#172033ed; font-weight:800; }
+    .duel-status strong { display:block; overflow-wrap:anywhere; }
+    .duel-status progress { display:block; width:100%; height:12px; accent-color:#4ade80; }
+    .duel-impact { position:absolute; z-index:3; top:20%; left:50%; translate:-50% 0; color:#fff; font-weight:1000; font-size:clamp(22px,4vw,34px); text-shadow:0 2px 5px #172033,0 0 12px #b91c1c; pointer-events:none; }
+    .duel-controls { max-width:510px; margin:12px auto 0; }
+    .duel-attack { min-width:130px; font-size:20px; }
+    #duelMessage { min-height:3em; }
+    @media (max-width:420px) { .duel-arena { border-radius:14px; } .duel-fighters { padding-inline:5px; gap:4px; } .duel-status { font-size:13px; } }
+    .reward { display:flex; align-items:center; justify-content:center; gap:14px; padding:8px; margin:8px auto; max-width:520px; border:2px solid #f5bd41; border-radius:16px; background:#fff6d6; color:#713f12; font-weight:800; }
+    .reward img { width:70px; height:70px; object-fit:contain; animation:award .35s ease-out both; }
+    @keyframes award { from { transform:translateX(-25px) scale(.65); opacity:0; } to { transform:none; opacity:1; } }
+    .math-card { max-width:460px; margin:20px auto; padding:20px; border-radius:22px; background:#fff; text-align:center; }
+    .math-card h2 { margin:0 0 10px; }
+    .equation { font-size:clamp(36px,10vw,56px); font-weight:900; margin:12px 0; }
+    .number-pad { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; max-width:315px; margin:auto; }
+    .number-pad button { height:52px; font-weight:900; font-size:24px; }
+    .practice-next { display:block; margin:10px auto; }
+    .start-actions button { max-width:100%; min-width:min(100%,190px); }
+    .start-card { padding-inline:clamp(14px,5vw,65px); }
+    #homeNotice { margin:18px 0 0; color:#9a3412; font-weight:800; }
   </style>
 </head>
 <body>
 <main class="app">
-  <section id="startScreen" class="start-screen" aria-labelledby="gameTitle"><div class="start-card"><p class="eyebrow">看注音・找鍵位・即時攻擊</p><h1 id="gameTitle">寶可夢<br>注音挑戰</h1><p class="start-copy">看著名字和注音，用台灣注音鍵盤逐字發動攻擊！</p><div class="start-actions"><button id="startButton" class="primary">開始挑戰</button><button id="collectionStartButton" class="secondary">我的收藏</button></div><div class="dex-summary" aria-label="圖鑑進度"><div class="summary"><span>已收服數量</span><strong id="caughtCount">0</strong></div><div class="summary"><span>圖鑑完成度</span><strong id="dexPercent">0%</strong></div></div></div></section>
+  <div class="wallet-bar"><button id="homeButton" class="hidden">返回選單</button><span>金幣 <strong id="coins">0</strong> 元</span><span>連對 <strong id="streak">0</strong> 題</span></div>
+  <section id="startScreen" class="start-screen" aria-labelledby="gameTitle"><div class="start-card"><h1 id="gameTitle">寶可夢練習場</h1><p class="start-copy">答題賺金幣，30 元組隊挑戰最多三場。</p><div class="start-actions"><button id="practiceButton" class="secondary">注音練習</button><button id="mathButton" class="secondary">九九乘法</button><button id="startButton" class="primary">三場對戰 · 30 元</button><button id="collectionStartButton" class="secondary">我的收藏</button></div><p id="homeNotice" class="hidden" role="status"></p><div class="dex-summary" aria-label="圖鑑進度"><div class="summary"><span>已收服數量</span><strong id="caughtCount">0</strong></div><div class="summary"><span>圖鑑完成度</span><strong id="dexPercent">0%</strong></div></div></div></section>
   <section id="battleScreen" class="battle-screen hidden" aria-label="注音戰鬥"><div class="game">
-    <section id="scene" class="scene scene-grassland"><div class="hud"><div class="hud-top"><span id="pokemonNumber" class="number">#0000</span><span id="sceneName" class="scene-name">草原</span><button id="collectionBattleButton" class="collection-hud">📚 我的收藏</button><span id="timer" class="timer">⏱ <b>60</b> 秒</span></div><div class="hp-labels"><span>HP</span><span id="hpText">100%</span></div><div class="hp-track" role="progressbar" aria-label="寶可夢血量" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100"><div id="hpFill" class="hp-fill"></div></div></div><div class="stage"><img id="pokemonImage" class="pokemon-image" alt=""><div class="identity"><h2 id="pokemonName"></h2><div id="syllableGuide" class="syllable-guide" aria-label="目前目標字與注音"></div></div></div><div id="resultLayer" class="result-layer hidden" aria-live="assertive"></div></section>
-    <section class="control-zone"><div class="input-row"><span class="input-label">目前輸入</span><div id="inputDisplay" class="input-display" aria-live="polite">等待輸入</div><div class="mini-actions"><button id="deleteButton" class="mini-action" aria-label="刪除">⌫</button><button id="clearButton" class="mini-action" aria-label="清除">清除</button></div></div><div id="message" class="message" aria-live="polite">照著黃色目標輸入吧！</div><div id="keyboard" class="keyboard" aria-label="台灣標準注音鍵盤"></div><p class="keyboard-help">電腦可直接按實體鍵盤；<kbd>Space</kbd> 完成目前音節，<kbd>Backspace</kbd> 刪除，<kbd>Esc</kbd> 清除。</p></section>
+    <section id="scene" class="scene scene-grassland"><div class="hud"><div class="hud-top"><span id="pokemonNumber" class="number">#0000</span><span id="sceneName" class="scene-name">草原</span><button id="collectionBattleButton" class="collection-hud battle-only">📚 我的收藏</button><span id="timer" class="timer battle-only">⏱ <b>60</b> 秒</span></div><div class="hp-labels battle-only"><span>HP</span><span id="hpText">100%</span></div><div class="hp-track battle-only" role="progressbar" aria-label="寶可夢血量" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100"><div id="hpFill" class="hp-fill"></div></div></div><div class="stage"><img id="pokemonImage" class="pokemon-image" alt=""><div class="identity"><h2 id="pokemonName"></h2><div id="syllableGuide" class="syllable-guide" aria-label="目前目標字與注音"></div></div></div><div id="resultLayer" class="result-layer hidden" aria-live="assertive"></div></section>
+    <section class="control-zone"><div class="input-row"><span class="input-label">目前輸入</span><div id="inputDisplay" class="input-display" aria-live="polite">等待輸入</div><div class="mini-actions"><button id="deleteButton" class="mini-action" aria-label="刪除">⌫</button><button id="clearButton" class="mini-action" aria-label="清除">清除</button></div></div><div id="message" class="message" aria-live="polite">照著黃色目標輸入吧！</div><div id="zhuyinReward" class="reward hidden" role="status"><img alt=""><span></span></div><div id="keyboard" class="keyboard" aria-label="台灣標準注音鍵盤"></div><p class="keyboard-help">電腦可直接按實體鍵盤；<kbd>Space</kbd> 完成目前音節，<kbd>Backspace</kbd> 刪除，<kbd>Esc</kbd> 清除。</p></section>
   </div></section>
+  <section id="duelScreen" class="math-card hidden" aria-labelledby="duelTitle">
+    <h2 id="duelTitle">寶可夢組隊對戰</h2>
+    <p id="duelScore" aria-live="polite"></p>
+    <div id="duelSetup" class="hidden">
+      <p id="duelStarter"></p>
+      <p>從支援和收藏中選 1～3 隻，每隻可打一場。</p>
+      <input id="duelSearch" class="collection-search" type="search" placeholder="搜尋可選隊員" aria-label="搜尋可選隊員">
+      <div id="duelOptions" class="duel-team"></div>
+      <button id="duelBegin" class="back-button">確認隊伍</button>
+    </div>
+    <div id="duelTeam" class="duel-team hidden" aria-label="我的隊伍"></div>
+    <div id="duelField" class="hidden">
+      <div id="duelArena" class="scene scene-grassland duel-arena">
+        <span id="duelSceneName" class="scene-name"></span>
+        <div class="duel-fighters">
+          <div class="duel-fighter">
+            <img id="duelPlayerImage" class="duel-image" alt="">
+            <span id="duelPlayerImpact" class="duel-impact hidden" aria-hidden="true"></span>
+            <div class="duel-status"><strong id="duelPlayerName"></strong><progress id="duelPlayerBar" aria-label="我方血量"></progress><span id="duelPlayerHp"></span></div>
+          </div>
+          <div class="duel-fighter">
+            <img id="duelImage" class="duel-image" alt="">
+            <span id="duelOpponentImpact" class="duel-impact hidden" aria-hidden="true"></span>
+            <div class="duel-status"><strong id="duelName"></strong><progress id="duelOpponentBar" aria-label="對手血量"></progress><span id="duelOpponentHp"></span></div>
+          </div>
+        </div>
+      </div>
+      <div class="duel-controls">
+        <div id="duelCharge" class="charge-panel hidden">
+          <div id="chargeDisc" class="charge-disc" role="meter" aria-label="攻擊充能" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><strong id="chargeLabel">0</strong></div>
+          <div class="charge-stats"><span id="chargeClock">3.0 秒</span><span id="chargePresses">0／10 下</span></div>
+        </div>
+        <button id="duelAttack" class="back-button duel-attack">攻擊</button>
+        <p id="duelMessage" class="message" role="status"></p>
+      </div>
+    </div>
+    <button id="duelNext" class="back-button hidden"></button>
+  </section>
+  <section id="mathScreen" class="math-card hidden" aria-labelledby="mathTitle">
+    <h2 id="mathTitle">九九乘法</h2>
+    <p id="equation" class="equation" aria-live="polite"></p>
+    <div id="mathInput" class="input-display" aria-label="目前輸入" aria-live="polite"></div>
+    <p id="mathMessage" class="message" role="status"></p>
+    <div id="mathReward" class="reward hidden" role="status"><img alt=""><span></span></div>
+    <div id="numberPad" class="number-pad" aria-label="數字鍵盤"></div>
+    <button id="nextMath" class="back-button practice-next hidden">下一題</button>
+  </section>
   <section id="collectionScreen" class="collection-screen hidden" aria-labelledby="collectionTitle"><div class="collection-shell"><header class="collection-top"><button id="collectionBackButton" class="back-button">← 返回遊戲</button><h2 id="collectionTitle" class="collection-title">我的收藏</h2><span aria-hidden="true"></span></header><div class="collection-stats"><span id="collectionCount">已收服 0 / 1025</span><span id="collectionPercent">完成度 0%</span></div><input id="collectionSearch" class="collection-search" type="search" inputmode="search" placeholder="搜尋中文名稱或 Pokémon ID" aria-label="搜尋收藏"><div id="collectionGrid" class="collection-grid"></div></div></section>
 </main>
 <script src="pokemon-data.js"></script><script src="pokemon-zhuyin.js"></script>
@@ -140,6 +234,414 @@
   const SCENES=[['grassland','草原'],['stars','星空'],['volcano','火山'],['clouds','雲端'],['cliff','山崖'],['river','河邊'],['forest','森林'],['desert','沙漠'],['snow','雪地'],['night','夜晚']];
   const el=id=>document.getElementById(id),data=Array.isArray(window.POKEMON_DATA)?window.POKEMON_DATA:[],zhuyinById=new Map((window.POKEMON_ZHUYIN||[]).map(item=>[Number(item.id),item])),roster=data.map(item=>({...item,zhuyin:zhuyinById.get(Number(item.id))})).filter(item=>item.zhuyin?.chars?.length);
   let caughtIds=loadCaught(),current=null,targets=[],targetIndex=0,composing='',hp=100,timeLeft=ROUND_SECONDS,timerId=null,locked=false,lastId=null,lastScene=-1,collectionReturnWasBattle=false;
+  const WALLET_KEY = 'pokemonZhuyinMachine.wallet';
+  const ROUND_COST = 30;
+  let mode = 'home';
+  let wallet = readWallet();
+  let mathDeck = [];
+  let mathQuestion;
+  let mathAnswer = '';
+  let mathSolved = false;
+
+  function readWallet() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(WALLET_KEY));
+      if (Number.isSafeInteger(saved?.coins) && saved.coins >= 0 &&
+          Number.isSafeInteger(saved.streak) && saved.streak >= 0) return saved;
+    } catch {}
+    return { coins: 0, streak: 0 };
+  }
+
+  function renderWallet() {
+    el('coins').textContent = wallet.coins;
+    el('streak').textContent = wallet.streak;
+  }
+
+  function saveWallet(coins, streak) {
+    const updated = { coins, streak };
+    localStorage.setItem(WALLET_KEY, JSON.stringify(updated));
+    wallet = updated;
+    renderWallet();
+  }
+
+  function awardCoins(rewardId, pokemon) {
+    const streak = wallet.streak + 1;
+    const hundredChance = Math.min(.02, .001 * streak);
+    const tenChance = Math.min(.25, .05 + .01 * (streak - 1));
+    const roll = Math.random();
+    const bonus = roll < hundredChance ? 100 : roll < hundredChance + tenChance ? 10 : 0;
+    saveWallet(wallet.coins + 1 + bonus, streak);
+    const reward = el(rewardId);
+    const giver = pokemon || randomPokemon();
+    const image = reward.querySelector('img');
+    image.hidden = !giver;
+    if (giver) image.src = giver.image;
+    reward.querySelector('span').textContent =
+      (giver ? giver.name + '送來 ' : '獲得 ') + (1 + bonus) + ' 元' + (bonus ? '（含 ' + bonus + ' 元獎金）' : '');
+    reward.classList.remove('hidden');
+  }
+
+  function resetStreak() {
+    if (wallet.streak) saveWallet(wallet.coins, 0);
+  }
+
+  function showMode(nextMode) {
+    stopTimer();
+    mode = nextMode;
+    const isBattle = mode === 'catch' || mode === 'zhuyin';
+    el('startScreen').classList.toggle('hidden', mode !== 'home');
+    el('battleScreen').classList.toggle('hidden', !isBattle);
+    el('battleScreen').classList.toggle('practice', mode === 'zhuyin');
+    el('battleScreen').setAttribute('aria-label', mode === 'zhuyin' ? '注音練習' : '抓寶挑戰');
+    el('duelScreen').classList.toggle('hidden', mode !== 'duel');
+    el('mathScreen').classList.toggle('hidden', mode !== 'math');
+    el('homeButton').classList.toggle('hidden', mode !== 'math' && mode !== 'zhuyin');
+    el('homeNotice').classList.add('hidden');
+  }
+
+  // Taiwan MEZASTAR Galaxy 3. The collection saves species, so use the highest card for that species.
+  const officialStars = {"41":2,"42":3,"169":4,"179":2,"180":3,"181":5,"208":5,"246":2,"247":3,"248":4,"249":6,"250":6,"303":5,"353":2,"354":4,"359":4,"460":5,"465":5,"486":6,"524":2,"525":3,"526":4,"535":2,"536":3,"537":4,"551":2,"552":3,"553":4,"582":2,"583":3,"584":4,"599":2,"600":3,"601":4,"604":5,"650":2,"651":3,"652":5,"653":2,"654":3,"655":5,"656":2,"657":3,"658":5,"674":2,"675":3,"716":6,"717":6,"718":6,"776":5,"840":2,"841":4,"842":4,"861":5,"862":6,"869":6,"884":4,"894":5,"895":5,"922":3,"936":4,"985":5,"997":3,"1007":6,"1008":6};
+  const attackCaps = [0, 0, 60, 95, 125, 155, 200];
+  const chargeDuration = 3000;
+  const chargeTiers = [
+    { presses: 0, label: '0', fill: 0, power: 0, color: '#425571' },
+    { presses: 1, label: '1/10', fill: 1 / 10, power: .35, color: '#60a5fa' },
+    { presses: 2, label: '1/8', fill: 1 / 8, power: .45, color: '#22d3ee' },
+    { presses: 3, label: '1/6', fill: 1 / 6, power: .55, color: '#4ade80' },
+    { presses: 5, label: '1/4', fill: 1 / 4, power: .70, color: '#facc15' },
+    { presses: 7, label: '1/2', fill: 1 / 2, power: .85, color: '#fb923c' },
+    { presses: 8, label: '3/4', fill: 3 / 4, power: .91, color: '#f97316' },
+    { presses: 9, label: '9/10', fill: 9 / 10, power: .96, color: '#f472b6' },
+    { presses: 10, label: '全滿', fill: 1, power: 1, color: '#f472b6' },
+  ];
+  const maxChargePresses = chargeTiers.at(-1).presses;
+  let duel;
+
+  function starsFor(pokemon) { return officialStars[pokemon.id] || 2; }
+  function gradeLabel(pokemon) {
+    return '★' + starsFor(pokemon) + (officialStars[pokemon.id] ? '' : '（遊戲預設）');
+  }
+
+  function startPaidRound() {
+    if (mode !== 'home') return;
+    const officialRoster = roster.filter(pokemon => officialStars[pokemon.id]);
+    const starters = officialRoster.filter(pokemon => starsFor(pokemon) <= 3);
+    if (officialRoster.length < 3 || !starters.length || wallet.coins < ROUND_COST) {
+      el('homeNotice').textContent = officialRoster.length < 3 || !starters.length
+        ? '找不到可用的對戰資料。' : '還差 ' + (ROUND_COST - wallet.coins) + ' 元，可以先去練習賺金幣。';
+      el('homeNotice').classList.remove('hidden');
+      return;
+    }
+    const starter = starters[Math.floor(Math.random() * starters.length)];
+    const pool = officialRoster.slice();
+    const opponents = Array.from({length: 3}, () => pool.splice(Math.floor(Math.random() * pool.length), 1)[0]);
+    saveWallet(wallet.coins - ROUND_COST, wallet.streak);
+    showMode('duel');
+    duel = {
+      round: 0, wins: 0, phase: 'setup', opponents, starter,
+      selected: new Set([starter.id]), tired: new Set(),
+      options: [starter, ...collectionItems().filter(pokemon => pokemon.id !== starter.id)],
+    };
+    el('duelScore').textContent = '選擇對戰隊伍';
+    el('duelStarter').textContent = '本次支援：' + starter.name + ' ' + gradeLabel(starter);
+    el('duelSearch').value = '';
+    el('duelSetup').classList.remove('hidden');
+    el('duelTeam').classList.add('hidden');
+    el('duelField').classList.add('hidden');
+    el('duelNext').classList.add('hidden');
+    renderTeamOptions();
+  }
+
+  function memberButton(pokemon, label, select) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    const image = document.createElement('img');
+    image.src = pokemon.image;
+    image.alt = '';
+    image.loading = 'lazy';
+    button.append(image, document.createTextNode(pokemon.name + ' ' + gradeLabel(pokemon) + label));
+    button.addEventListener('click', select);
+    return button;
+  }
+
+  function renderTeamOptions() {
+    const list = el('duelOptions');
+    const term = el('duelSearch').value.trim();
+    list.replaceChildren();
+    for (const pokemon of duel.options) {
+      if (term && !pokemon.name.includes(term)) continue;
+      const picked = duel.selected.has(pokemon.id);
+      const button = memberButton(pokemon, pokemon === duel.starter ? ' · 支援' : '', () => {
+        if (duel.phase !== 'setup') return;
+        if (duel.selected.has(pokemon.id)) duel.selected.delete(pokemon.id);
+        else if (duel.selected.size < 3) duel.selected.add(pokemon.id);
+        renderTeamOptions();
+        list.querySelector('[data-id="' + pokemon.id + '"]')?.focus();
+      });
+      button.dataset.id = pokemon.id;
+      button.setAttribute('aria-pressed', picked);
+      button.disabled = !picked && duel.selected.size >= 3;
+      list.appendChild(button);
+    }
+    el('duelBegin').disabled = duel.selected.size === 0;
+    el('duelBegin').textContent = '確認隊伍（' + duel.selected.size + '／3）';
+  }
+
+  function chooseDuelMember() {
+    duel.phase = 'choose';
+    el('duelSetup').classList.add('hidden');
+    el('duelTeam').classList.remove('hidden');
+    el('duelField').classList.add('hidden');
+    el('duelNext').classList.add('hidden');
+    const opponent = duel.opponents[duel.round];
+    el('duelScore').textContent = '選擇第 ' + (duel.round + 1) + ' 場隊員 · 對手 ' + opponent.name + ' ' + gradeLabel(opponent);
+    renderDuelTeam();
+    el('duelTeam').querySelector('button:not(:disabled)')?.focus();
+  }
+
+  function renderDuelTeam() {
+    const list = el('duelTeam');
+    list.replaceChildren();
+    for (const pokemon of duel.team) {
+      const tired = duel.tired.has(pokemon.id);
+      const label = tired ? ' · 疲勞' : duel.phase === 'attack' && pokemon === duel.player ? ' · 上場' : '';
+      const button = memberButton(pokemon, label, () => {
+        if (duel.phase === 'choose' && !duel.tired.has(pokemon.id)) startDuelRound(pokemon);
+      });
+      button.disabled = tired || duel.phase !== 'choose';
+      if (tired) button.dataset.tired = '';
+      list.appendChild(button);
+    }
+  }
+
+  function startDuelRound(player) {
+    duel.opponent = duel.opponents[duel.round++];
+    duel.player = player;
+    duel.playerHp = el('duelPlayerBar').max = 85 + starsFor(player) * 15;
+    duel.opponentHp = el('duelOpponentBar').max = 85 + starsFor(duel.opponent) * 15;
+    const sceneIndex = (duel.round === 1 ? Math.floor(Math.random() * SCENES.length)
+      : (duel.sceneIndex + 1 + Math.floor(Math.random() * (SCENES.length - 1))) % SCENES.length);
+    duel.sceneIndex = sceneIndex;
+    const [scene, sceneName] = SCENES[sceneIndex];
+    el('duelArena').className = 'scene scene-' + scene + ' duel-arena';
+    el('duelSceneName').textContent = sceneName;
+    el('duelPlayerImage').src = player.image;
+    el('duelPlayerName').textContent = player.name + ' ' + gradeLabel(player);
+    for (const id of ['duelPlayerImage', 'duelImage', 'duelPlayerImpact', 'duelOpponentImpact']) {
+      el(id).getAnimations().forEach(animation => animation.cancel());
+    }
+    el('duelPlayerImpact').classList.add('hidden');
+    el('duelOpponentImpact').classList.add('hidden');
+    duel.phase = 'attack';
+    duel.active = true;
+    duel.charge = null;
+    duel.readyAt = 0;
+    el('duelField').classList.remove('hidden');
+    el('duelImage').src = duel.opponent.image;
+    el('duelName').textContent = duel.opponent.name + ' ' + gradeLabel(duel.opponent);
+    el('duelAttack').classList.remove('hidden');
+    el('duelCharge').classList.add('hidden');
+    el('duelMessage').textContent = '按「攻擊」開始計時，3 秒內連打 10 下充滿。也可以連按空白鍵。';
+    renderDuelTeam();
+    renderDuel();
+    el('duelAttack').focus();
+  }
+
+  function chargeTier(presses) {
+    return chargeTiers.findLast(tier => presses >= tier.presses);
+  }
+
+  function renderCharge(presses) {
+    const tier = chargeTier(presses);
+    const disc = el('chargeDisc');
+    disc.style.setProperty('--fill', tier.fill + 'turn');
+    disc.style.setProperty('--charge-color', tier.color);
+    disc.toggleAttribute('data-full', tier.fill === 1);
+    disc.setAttribute('aria-valuenow', Math.round(tier.fill * 100));
+    disc.setAttribute('aria-valuetext', tier.label);
+    el('chargeLabel').textContent = tier.label;
+    el('chargePresses').textContent = presses + '／' + maxChargePresses + ' 下';
+  }
+
+  function finishCharge(charge) {
+    if (duel.charge !== charge) return;
+    duel.charge = null;
+    cancelAnimationFrame(charge.frame);
+    clearTimeout(charge.timeout);
+    el('chargeClock').textContent = '0.0 秒';
+    duel.readyAt = performance.now() + 700;
+    resolveDuelAttack(chargeTier(charge.presses));
+  }
+
+  function updateChargeClock(charge) {
+    if (duel.charge !== charge) return;
+    const remaining = charge.deadline - performance.now();
+    if (remaining <= 0) {
+      finishCharge(charge);
+      return;
+    }
+    el('chargeClock').textContent = (Math.ceil(remaining / 100) / 10).toFixed(1) + ' 秒';
+    charge.frame = requestAnimationFrame(() => updateChargeClock(charge));
+  }
+
+  function renderDuel() {
+    el('duelScore').textContent = '第 ' + duel.round + '／3 場 · 已勝 ' + duel.wins + ' 場';
+    el('duelPlayerBar').value = duel.playerHp;
+    el('duelOpponentBar').value = duel.opponentHp;
+    el('duelPlayerHp').textContent = 'HP ' + duel.playerHp + '／' + el('duelPlayerBar').max;
+    el('duelOpponentHp').textContent = 'HP ' + duel.opponentHp + '／' + el('duelOpponentBar').max;
+  }
+
+  function playDuelStrike(attacker, target, impact, damage, direction, delay, defeated) {
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    attacker.animate([
+      { transform: 'translateX(0)' },
+      { transform: 'translateX(' + direction * 22 + '%) scale(1.1)', offset: .45 },
+      { transform: 'translateX(0)' },
+    ], { duration: 210, delay, easing: 'ease-out' });
+    target.animate([
+      { transform: 'translateX(0)', opacity: 1 },
+      { transform: 'translateX(' + direction * 12 + '%)', filter: 'brightness(1.9)', offset: .32 },
+      { transform: defeated ? 'translateY(15%) scale(.8)' : 'translateX(0)', opacity: defeated ? .3 : 1 },
+    ], { duration: 180, delay: delay + 80, fill: defeated ? 'forwards' : 'none' });
+    impact.textContent = '−' + damage;
+    impact.classList.remove('hidden');
+    impact.getAnimations().forEach(animation => animation.cancel());
+    impact.animate([
+      { opacity: 0, transform: 'translateY(8px)' },
+      { opacity: 1, offset: .24 },
+      { opacity: 0, transform: 'translateY(-28px)' },
+    ], { duration: 400, delay: delay + 75, fill: 'both' });
+  }
+
+  function attackDuel() {
+    if (mode !== 'duel' || !duel.active) return;
+    const now = performance.now();
+    if (now < duel.readyAt) return;
+    if (duel.charge) {
+      if (now >= duel.charge.deadline) {
+        finishCharge(duel.charge);
+        return;
+      }
+      duel.charge.presses = Math.min(maxChargePresses, duel.charge.presses + 1);
+      renderCharge(duel.charge.presses);
+      return;
+    }
+    const charge = { presses: 1, deadline: now + chargeDuration };
+    duel.charge = charge;
+    el('duelCharge').classList.remove('hidden');
+    el('duelMessage').textContent = '連打攻擊鍵，幫圓盤充能！';
+    renderCharge(charge.presses);
+    updateChargeClock(charge);
+    charge.timeout = setTimeout(() => finishCharge(charge), chargeDuration);
+  }
+
+  function resolveDuelAttack(tier) {
+    const damage = Math.round(attackCaps[starsFor(duel.player)] * tier.power);
+    const counterScale = .26 + .17 * (1 - tier.power) / .65;
+    duel.opponentHp = Math.max(0, duel.opponentHp - damage);
+    const counter = duel.opponentHp ? Math.round(attackCaps[starsFor(duel.opponent)] * counterScale) : 0;
+    duel.playerHp = Math.max(0, duel.playerHp - counter);
+    const playerImage = el('duelPlayerImage');
+    const opponentImage = el('duelImage');
+    playDuelStrike(playerImage, opponentImage, el('duelOpponentImpact'), damage, 1, 0, !duel.opponentHp);
+    if (counter) playDuelStrike(opponentImage, playerImage, el('duelPlayerImpact'), counter, -1, 210, !duel.playerHp);
+    renderDuel();
+    if (duel.opponentHp && duel.playerHp) {
+      el('duelMessage').textContent = tier.label + ' · 攻擊 ' + damage + '，對手反擊 ' + counter + '。';
+      return;
+    }
+    duel.active = false;
+    duel.tired.add(duel.player.id);
+    const won = duel.opponentHp === 0;
+    if (won) {
+      duel.wins++;
+      collectPokemon(duel.opponent);
+    }
+    const exhausted = duel.tired.size === duel.team.length;
+    const finished = duel.round === 3 || exhausted;
+    duel.phase = finished ? 'finished' : 'between';
+    renderDuelTeam();
+    renderDuel();
+    const result = (won ? '獲勝，已收服對手。' : '這場輸了。') + '最後一擊 ' + damage + '。';
+    const summary = '共打 ' + duel.round + ' 場，勝 ' + duel.wins + ' 場。';
+    el('duelMessage').textContent = result + (duel.round === 3 ? summary : exhausted ? '全隊都累了，挑戰結束。' + summary : '請換另一隻隊員。');
+    el('duelAttack').classList.add('hidden');
+    el('duelNext').textContent = finished ? '返回選單' : '下一場';
+    el('duelNext').classList.remove('hidden');
+    el('duelNext').focus();
+  }
+
+  function collectPokemon(pokemon) {
+    const id = Number(pokemon.id);
+    if (caughtIds.has(id)) return false;
+    caughtIds.add(id);
+    saveCaught();
+    updateDex();
+    return true;
+  }
+
+  function nextMathQuestion() {
+    if (!mathDeck.length) {
+      mathDeck = Array.from({length: 81}, (_, i) => [1 + Math.floor(i / 9), 1 + i % 9]);
+      for (let i = mathDeck.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [mathDeck[i], mathDeck[j]] = [mathDeck[j], mathDeck[i]];
+      }
+      if (mathQuestion && mathDeck.at(-1).join() === mathQuestion.join()) {
+        [mathDeck[0], mathDeck[80]] = [mathDeck[80], mathDeck[0]];
+      }
+    }
+    mathQuestion = mathDeck.pop();
+    mathAnswer = '';
+    mathSolved = false;
+    el('equation').textContent = mathQuestion.join(' × ') + ' = ？';
+    el('mathInput').textContent = '等待輸入';
+    el('mathMessage').textContent = '';
+    el('mathReward').classList.add('hidden');
+    el('nextMath').classList.add('hidden');
+    el('numberPad').classList.remove('hidden');
+  }
+
+  function handleMathKey(key) {
+    if (mathSolved) {
+      if (key === 'Enter') nextMathQuestion();
+      return;
+    }
+    if (key === 'Enter') {
+      if (!mathAnswer) return;
+      if (Number(mathAnswer) === mathQuestion[0] * mathQuestion[1]) {
+        mathSolved = true;
+        el('mathMessage').textContent = '答對了！';
+        awardCoins('mathReward');
+        el('numberPad').classList.add('hidden');
+        el('nextMath').classList.remove('hidden');
+        el('nextMath').focus();
+        return;
+      }
+      resetStreak();
+      mathAnswer = '';
+      el('mathMessage').textContent = '再試一次，連對數已重新計算。';
+    } else if (key === 'Backspace') {
+      mathAnswer = mathAnswer.slice(0, -1);
+    } else if (mathAnswer.length < 2) {
+      mathAnswer += key;
+    }
+    el('mathInput').textContent = mathAnswer || '等待輸入';
+  }
+
+  function buildNumberPad() {
+    for (const key of ['1','2','3','4','5','6','7','8','9','Backspace','0','Enter']) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'key';
+      button.textContent = key === 'Backspace' ? '⌫' : key === 'Enter' ? '送出' : key;
+      if (key === 'Backspace') button.setAttribute('aria-label', '退格');
+      button.addEventListener('click', () => handleMathKey(key));
+      el('numberPad').appendChild(button);
+    }
+  }
+
   function loadCaught(){try{const x=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');return new Set(Array.isArray(x)?x.map(Number).filter(Number.isFinite):[])}catch{return new Set()}}
   function saveCaught(){localStorage.setItem(STORAGE_KEY,JSON.stringify([...caughtIds].sort((a,b)=>a-b)))}
   function updateDex(){el('caughtCount').textContent=caughtIds.size;el('dexPercent').textContent=(roster.length?caughtIds.size/roster.length*100:0).toFixed(1).replace('.0','')+'%'}
@@ -148,22 +650,22 @@
     const all=collectionItems(),term=query.trim(),numberTerm=term.replace(/^#/,'');
     const visible=all.filter(item=>!term||item.name.includes(term)||String(item.id).padStart(4,'0').includes(numberTerm)||String(item.id)===numberTerm.replace(/^0+/,''));
     el('collectionCount').textContent=`已收服 ${all.length} / ${roster.length}`;el('collectionPercent').textContent=`完成度 ${(roster.length?all.length/roster.length*100:0).toFixed(1)}%`;
-    el('collectionGrid').innerHTML=visible.length?visible.map(item=>`<article class="collection-card"><img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.name)}" loading="lazy"><div class="collection-number">#${String(item.id).padStart(4,'0')}</div><div class="collection-name">${escapeHtml(item.name)}</div><div class="collection-zhuyin">${escapeHtml(item.zhuyin.zhuyinText)}</div></article>`).join(''):`<div class="collection-empty">${all.length?'找不到符合的收藏。':'還沒有收藏，先去收服第一隻寶可夢吧！'}</div>`;
+    el('collectionGrid').innerHTML=visible.length?visible.map(item=>`<article class="collection-card"><img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.name)}" loading="lazy"><div class="collection-number">#${String(item.id).padStart(4,'0')}</div><div class="collection-name">${escapeHtml(item.name)}</div><div>${gradeLabel(item)}</div><div class="collection-zhuyin">${escapeHtml(item.zhuyin.zhuyinText)}</div></article>`).join(''):`<div class="collection-empty">${all.length?'找不到符合的收藏。':'還沒有收藏，先去收服第一隻寶可夢吧！'}</div>`;
   }
   function openCollection(){collectionReturnWasBattle=!el('battleScreen').classList.contains('hidden');if(collectionReturnWasBattle&&!locked)stopTimer();el('collectionSearch').value='';renderCollection();el('collectionScreen').classList.remove('hidden');el('collectionSearch').focus()}
-  function closeCollection(){el('collectionScreen').classList.add('hidden');if(collectionReturnWasBattle&&current&&!locked&&timeLeft>0)startTimer()}
+  function closeCollection(){el('collectionScreen').classList.add('hidden');if(collectionReturnWasBattle&&(mode==='catch'||mode==='zhuyin')&&current&&!locked&&timeLeft>0)startTimer()}
   function stripTone(value){return value.replace(/^˙|[ˊˇˋ]$/g,'')}function getTone(value){if(value.startsWith('˙'))return '˙';const m=value.match(/[ˊˇˋ]$/);return m?m[0]:''}function formatInput(body,tone=''){return tone==='˙'?tone+body:body+tone}
   function buildKeyboard(){const keyboard=el('keyboard');KEY_ROWS.forEach(row=>{const line=document.createElement('div');line.className=`key-row row-${row.length}`;row.forEach(([physical,zhuyin])=>{const button=document.createElement('button');button.type='button';button.className='key'+(TONES.has(zhuyin)?' tone':'');button.dataset.physical=physical;button.innerHTML=`<span class="key-physical">${physical}</span><span class="key-zhuyin">${zhuyin}</span>`;button.setAttribute('aria-label',`${physical} 鍵，${zhuyin}`);button.addEventListener('click',()=>handleMappedKey(physical));line.appendChild(button)});keyboard.appendChild(line)})}
   function flashKey(key){const button=document.querySelector(`.key[data-physical="${CSS.escape(key)}"]`);if(!button)return;button.classList.add('pressed');setTimeout(()=>button.classList.remove('pressed'),130)}function normalizePhysical(key){if(key.length===1&&/[a-z]/i.test(key))return key.toUpperCase();return key}
   function handleMappedKey(physical){if(locked||!current)return;flashKey(physical);const value=KEY_MAP.get(physical);if(TONES.has(value))handleTone(value);else handleZhuyin(value)}
-  function handleZhuyin(symbol){composing+=symbol;renderInput();const target=targets[targetIndex];if(!target)return;if(composing===target.body){if(!target.tone)completeTarget();else if(target.progress<WEAK_RATIO)applyProgress(target,WEAK_RATIO,'弱攻擊！聲調還沒完成','weak')}}
+  function handleZhuyin(symbol){composing+=symbol;renderInput();const target=targets[targetIndex];if(!target)return;if(mode==='zhuyin'&&!target.body.startsWith(composing))return miss();if(composing===target.body){if(!target.tone)completeTarget();else if(target.progress<WEAK_RATIO)applyProgress(target,WEAK_RATIO,'弱攻擊！聲調還沒完成','weak')}}
   function handleTone(tone){const target=targets[targetIndex];if(!target||!composing)return miss();const attempt=formatInput(composing,tone);if(attempt===target.answer)completeTarget();else miss()}
   function commitWithSpace(){if(locked||!current||!composing)return;const target=targets[targetIndex];if(composing===target.body){if(!target.tone)completeTarget();else{if(target.progress<WEAK_RATIO)applyProgress(target,WEAK_RATIO,'弱攻擊！聲調還沒完成','weak');composing='';advanceTarget()}}else miss()}
-  function completeTarget(){const target=targets[targetIndex];if(!target)return;applyProgress(target,1,target.progress?'補上聲調，完整命中！':'完整命中！','good');composing='';advanceTarget()}
+  function completeTarget(){const target=targets[targetIndex];if(!target)return;applyProgress(target,1,target.progress?'補上聲調，完整命中！':'完整命中！','good');composing='';if(locked&&mode==='zhuyin')renderInput();advanceTarget()}
   function applyProgress(target,newProgress,text,type){const old=target.progress;target.progress=Math.max(old,Math.min(1,newProgress));const unit=100/targets.length;hp=Math.max(0,100-targets.reduce((sum,item)=>sum+item.progress*unit,0));updateHp();renderGuide();showMessage(text,type);animateHit(type,text,target.progress-old);if(hp<.001&&targets.every(item=>item.progress===1))capturePokemon()}
   function advanceTarget(){if(locked)return;const next=findNextIncomplete(targetIndex+1);if(next===-1){if(hp<.001)capturePokemon();return}targetIndex=next;composing='';renderGuide();renderInput()}
   function findNextIncomplete(start){for(let step=0;step<targets.length;step++){const i=(start+step)%targets.length;if(targets[i].progress<1)return i}return -1}
-  function miss(){composing='';renderInput();showMessage('MISS！再看一次黃色目標','bad');animateHit('miss','MISS',0)}function deleteInput(){if(locked)return;composing=[...composing].slice(0,-1).join('');renderInput()}function clearInput(){if(locked)return;composing='';renderInput();showMessage('已清除，重新輸入目前音節')}
+  function miss(){if(mode==='zhuyin')resetStreak();composing='';renderInput();showMessage('MISS！再看一次黃色目標','bad');animateHit('miss','MISS',0)}function deleteInput(){if(locked)return;composing=[...composing].slice(0,-1).join('');renderInput()}function clearInput(){if(locked)return;composing='';renderInput();showMessage('已清除，重新輸入目前音節')}
   function renderInput(){const target=targets[targetIndex];el('inputDisplay').textContent=composing||'等待輸入';el('inputDisplay').classList.toggle('weak',!!target&&target.progress===WEAK_RATIO&&composing===target.body)}
   function renderGuide(){el('syllableGuide').innerHTML=targets.map((target,index)=>`<div class="guide-item ${index===targetIndex?'current ':''}${target.progress===1?'done':target.progress>0?'weak':''}"><span class="guide-char">${escapeHtml(target.char)}</span><span class="guide-zhuyin">${escapeHtml(target.answer)}</span></div>`).join('')}
   function escapeHtml(value){const span=document.createElement('span');span.textContent=value;return span.innerHTML}function showMessage(text,type=''){el('message').textContent=text;el('message').className='message '+type}
@@ -171,13 +673,100 @@
   function updateHp(){const shown=Math.max(0,hp);el('hpFill').style.width=shown+'%';el('hpText').textContent=Math.round(shown)+'%';el('hpFill').classList.toggle('mid',shown<=60&&shown>25);el('hpFill').classList.toggle('low',shown<=25);el('hpFill').parentElement.setAttribute('aria-valuenow',Math.round(shown))}
   function chooseScene(){let index;do{index=Math.floor(Math.random()*SCENES.length)}while(SCENES.length>1&&index===lastScene);lastScene=index;const [id,name]=SCENES[index];el('scene').className=`scene scene-${id}`;el('sceneName').textContent=name;return id}
   function randomPokemon(){if(roster.length<2)return roster[0];let pick;do{pick=roster[Math.floor(Math.random()*roster.length)]}while(pick.id===lastId);return pick}
-  function startEncounter(forcedId,forcedScene){stopTimer();locked=false;el('resultLayer').classList.add('hidden');el('resultLayer').innerHTML='';current=forcedId?roster.find(p=>Number(p.id)===Number(forcedId)):randomPokemon();if(!current){showMessage('找不到可用資料','bad');return}lastId=current.id;hp=100;timeLeft=ROUND_SECONDS;targetIndex=0;composing='';targets=current.zhuyin.chars.filter(c=>!c.nonChinese).map(c=>({char:c.char,answer:c.selected,body:stripTone(c.selected),tone:getTone(c.selected),progress:0}));el('pokemonNumber').textContent='#'+String(current.id).padStart(4,'0');el('pokemonName').textContent=current.name;el('pokemonImage').src=current.image;el('pokemonImage').alt=current.name;if(forcedScene){const index=SCENES.findIndex(x=>x[0]===forcedScene);lastScene=index;el('scene').className=`scene scene-${forcedScene}`;el('sceneName').textContent=index>=0?SCENES[index][1]:forcedScene}else chooseScene();updateHp();updateTimer();renderGuide();renderInput();showMessage('照著黃色目標輸入吧！');el('startScreen').classList.add('hidden');el('battleScreen').classList.remove('hidden');startTimer()}
-  function startTimer(){if(timerId||locked)return;timerId=setInterval(()=>{timeLeft--;updateTimer();if(timeLeft<=0)escapePokemon()},1000)}function stopTimer(){if(timerId)clearInterval(timerId);timerId=null}function updateTimer(){el('timer').innerHTML=`⏱ <b>${Math.max(0,timeLeft)}</b> 秒`;el('timer').classList.toggle('urgent',timeLeft<=5)}
-  function capturePokemon(){if(locked)return;locked=true;stopTimer();const already=caughtIds.has(Number(current.id));if(!already){caughtIds.add(Number(current.id));saveCaught();updateDex()}el('resultLayer').innerHTML=`<div><div class="capture-ball"></div><h3>收服成功！</h3><p>${already?'已經收藏過囉！':'已加入我的收藏！'}</p></div>`;el('resultLayer').classList.remove('hidden');setTimeout(()=>startEncounter(),1900)}
-  function escapePokemon(){if(locked)return;locked=true;stopTimer();el('resultLayer').innerHTML='<div><div class="escape-cloud">💨</div><h3>寶可夢逃走了！</h3><p>之後還有機會再遇到牠。</p></div>';el('resultLayer').classList.remove('hidden');setTimeout(()=>startEncounter(),1600)}
-  document.addEventListener('keydown',event=>{if(!el('collectionScreen').classList.contains('hidden')){if(event.key==='Escape'){event.preventDefault();closeCollection()}return}const key=normalizePhysical(event.key);if(KEY_MAP.has(key)){event.preventDefault();handleMappedKey(key)}else if(event.code==='Space'){event.preventDefault();commitWithSpace()}else if(event.key==='Backspace'){event.preventDefault();deleteInput()}else if(event.key==='Escape'){event.preventDefault();clearInput()}});
-  el('startButton').addEventListener('click',()=>startEncounter());el('collectionStartButton').addEventListener('click',openCollection);el('collectionBattleButton').addEventListener('click',openCollection);el('collectionBackButton').addEventListener('click',closeCollection);el('collectionSearch').addEventListener('input',event=>renderCollection(event.target.value));el('deleteButton').addEventListener('click',deleteInput);el('clearButton').addEventListener('click',clearInput);buildKeyboard();updateDex();renderInput();
-  window.__POKEMON_ZHUYIN_TEST__={startEncounterById:(id,scene)=>startEncounter(id,scene),press:key=>{const normalized=normalizePhysical(key);if(KEY_MAP.has(normalized))handleMappedKey(normalized);else if(key===' ')commitWithSpace()},typeKeys:keys=>[...keys].forEach(key=>window.__POKEMON_ZHUYIN_TEST__.press(key)),forceTimeout:escapePokemon,openCollection,closeCollection,renderCollection,setCaughtIds:ids=>{caughtIds=new Set(ids.map(Number));saveCaught();updateDex()},state:()=>({id:current?.id,hp,targetIndex,composing,targets:targets.map(x=>({...x})),scene:SCENES[lastScene]?.[0],caughtIds:[...caughtIds],collectionOpen:!el('collectionScreen').classList.contains('hidden')})};
+  function startEncounter(forcedId,forcedScene){stopTimer();
+    const reward = el('zhuyinReward');
+    reward.classList.add('hidden');
+    el('keyboard').before(reward);
+    el('keyboard').classList.remove('hidden');locked=false;el('resultLayer').classList.add('hidden');el('resultLayer').innerHTML='';current=forcedId?roster.find(p=>Number(p.id)===Number(forcedId)):randomPokemon();if(!current){showMessage('找不到可用資料','bad');return}lastId=current.id;hp=100;timeLeft=ROUND_SECONDS;targetIndex=0;composing='';targets=current.zhuyin.chars.filter(c=>!c.nonChinese).map(c=>({char:c.char,answer:c.selected,body:stripTone(c.selected),tone:getTone(c.selected),progress:0}));el('pokemonNumber').textContent='#'+String(current.id).padStart(4,'0');el('pokemonName').textContent=current.name;el('pokemonImage').src=current.image;el('pokemonImage').alt=current.name;if(forcedScene){const index=SCENES.findIndex(x=>x[0]===forcedScene);lastScene=index;el('scene').className=`scene scene-${forcedScene}`;el('sceneName').textContent=index>=0?SCENES[index][1]:forcedScene}else chooseScene();updateHp();updateTimer();renderGuide();renderInput();showMessage('照著黃色目標輸入吧！');el('startScreen').classList.add('hidden');el('battleScreen').classList.remove('hidden');startTimer()}
+  function startTimer(){if(timerId||locked)return;timerId=setInterval(()=>{timeLeft--;updateTimer();if(timeLeft<=0){if(mode==='zhuyin')resetStreak();escapePokemon()}},1000)}function stopTimer(){if(timerId)clearInterval(timerId);timerId=null}function updateTimer(){el('timer').innerHTML=`⏱ <b>${Math.max(0,timeLeft)}</b> 秒`;el('timer').classList.toggle('urgent',timeLeft<=5)}
+  function capturePokemon(){if(locked)return;locked=true;stopTimer();const already=!collectPokemon(current);el('resultLayer').innerHTML=`<div><div class="capture-ball"></div><h3>收服成功！</h3><p>${already?'已經收藏過囉！':'已加入我的收藏！'}</p></div>`;el('resultLayer').classList.remove('hidden');
+    if (mode === 'zhuyin') {
+      const reward = el('zhuyinReward');
+      el('resultLayer').firstElementChild.appendChild(reward);
+      awardCoins('zhuyinReward', current);
+    }
+    addRoundReturn();
+  }
+  function escapePokemon(){if(locked)return;locked=true;stopTimer();el('resultLayer').innerHTML='<div><div class="escape-cloud">💨</div><h3>寶可夢逃走了！</h3><p>之後還有機會再遇到牠。</p></div>';el('resultLayer').classList.remove('hidden');addRoundReturn()}
+  function addRoundReturn() {
+    const button = document.createElement('button');
+    button.className = 'back-button practice-next';
+    button.textContent = '返回選單';
+    button.addEventListener('click', () => showMode('home'));
+    const result = el('resultLayer').firstElementChild;
+    if (mode === 'zhuyin') {
+      const next = document.createElement('button');
+      next.className = 'back-button practice-next';
+      next.textContent = '下一題';
+      next.addEventListener('click', () => startEncounter());
+      result.appendChild(next);
+    }
+    result.appendChild(button);
+    button.focus();
+  }
+
+  document.addEventListener('keydown',event=>{if(!el('collectionScreen').classList.contains('hidden')){if(event.key==='Escape'){event.preventDefault();closeCollection()}return}
+    if (event.ctrlKey || event.altKey || event.metaKey || event.isComposing) return;
+    if (mode === 'duel') {
+      if (duel.active && (event.code === 'Space' || (event.key === 'Enter' && event.target === el('duelAttack')))) {
+        event.preventDefault();
+        if (!event.repeat) attackDuel();
+      }
+      return;
+    }
+    if (mode === 'math') {
+      if (event.key === 'Enter' && event.target.closest('button:not(.key)')) return;
+      if (/^[0-9]$/.test(event.key) || ['Backspace','Enter'].includes(event.key)) {
+        event.preventDefault();
+        if (event.key !== 'Enter' || !event.repeat) handleMathKey(event.key);
+      }
+      return;
+    }
+    if (mode !== 'catch' && mode !== 'zhuyin' || locked) return;
+    const key=normalizePhysical(event.key);if(KEY_MAP.has(key)){event.preventDefault();handleMappedKey(key)}else if(event.code==='Space'){event.preventDefault();commitWithSpace()}else if(event.key==='Backspace'){event.preventDefault();deleteInput()}else if(event.key==='Escape'){event.preventDefault();clearInput()}});
+  el('startButton').addEventListener('click', startPaidRound);
+  el('homeButton').addEventListener('click', () => showMode('home'));
+  el('practiceButton').addEventListener('click', () => {
+    if (!roster.length) {
+      el('homeNotice').textContent = '找不到可用的注音題目。';
+      el('homeNotice').classList.remove('hidden');
+      return;
+    }
+    showMode('zhuyin');
+    startEncounter();
+  });
+  el('mathButton').addEventListener('click', () => {
+    showMode('math');
+    if (!mathQuestion) nextMathQuestion();
+    el('equation').setAttribute('tabindex','-1');
+    el('equation').focus();
+  });
+  el('nextMath').addEventListener('click', () => {
+    nextMathQuestion();
+    el('equation').focus();
+  });
+  el('duelAttack').addEventListener('click', attackDuel);
+  el('duelSearch').addEventListener('input', renderTeamOptions);
+  el('duelBegin').addEventListener('click', () => {
+    if (mode !== 'duel' || duel.phase !== 'setup' || !duel.selected.size) return;
+    duel.team = duel.options.filter(pokemon => duel.selected.has(pokemon.id));
+    chooseDuelMember();
+  });
+  el('duelNext').addEventListener('click', () => {
+    if (mode !== 'duel') return;
+    if (duel.phase === 'finished') showMode('home');
+    else if (duel.phase === 'between') chooseDuelMember();
+  });
+  buildNumberPad();
+  renderWallet();
+  window.addEventListener('storage', event => {
+    if (event.key === WALLET_KEY || event.key === null) {
+      wallet = readWallet();
+      renderWallet();
+    }
+  });
+  el('collectionStartButton').addEventListener('click',openCollection);el('collectionBattleButton').addEventListener('click',openCollection);el('collectionBackButton').addEventListener('click',closeCollection);el('collectionSearch').addEventListener('input',event=>renderCollection(event.target.value));el('deleteButton').addEventListener('click',deleteInput);el('clearButton').addEventListener('click',clearInput);buildKeyboard();updateDex();renderInput();
+  window.__POKEMON_ZHUYIN_TEST__={startEncounterById:(id,scene)=>{showMode('catch');startEncounter(id,scene)},press:key=>{const normalized=normalizePhysical(key);if(KEY_MAP.has(normalized))handleMappedKey(normalized);else if(key===' ')commitWithSpace()},typeKeys:keys=>[...keys].forEach(key=>window.__POKEMON_ZHUYIN_TEST__.press(key)),forceTimeout:escapePokemon,openCollection,closeCollection,renderCollection,setCaughtIds:ids=>{caughtIds=new Set(ids.map(Number));saveCaught();updateDex()},state:()=>({id:current?.id,hp,targetIndex,composing,targets:targets.map(x=>({...x})),scene:SCENES[lastScene]?.[0],caughtIds:[...caughtIds],collectionOpen:!el('collectionScreen').classList.contains('hidden')})};
 })();
 </script>
 </body>
