@@ -468,7 +468,10 @@
     duel.charge = null;
     cancelAnimationFrame(charge.frame);
     clearTimeout(charge.timeout);
+    clearTimeout(charge.opponentTimeout);
     el('chargeClock').textContent = '0.0 秒';
+    if (!charge.opponentMoved) opponentTurn(charge);
+    if (!duel.active) return;
     duel.readyAt = performance.now() + 700;
     resolveDuelAttack(chargeTier(charge.presses));
   }
@@ -533,27 +536,48 @@
     el('duelMessage').textContent = '連打攻擊鍵，幫圓盤充能！';
     renderCharge(charge.presses);
     updateChargeClock(charge);
+    charge.opponentTimeout = setTimeout(() => {
+      if (duel.charge === charge) opponentTurn(charge);
+    }, 1450);
     charge.timeout = setTimeout(() => finishCharge(charge), chargeDuration);
+  }
+
+  function opponentTurn(charge) {
+    if (!duel.active || charge.opponentMoved) return;
+    charge.opponentMoved = true;
+    const damage = Math.round(attackCaps[starsFor(duel.opponent)] * (.18 + Math.random() * .13));
+    duel.playerHp = Math.max(0, duel.playerHp - damage);
+    playDuelStrike(el('duelImage'), el('duelPlayerImage'), el('duelPlayerImpact'), damage, -1, 0, !duel.playerHp);
+    renderDuel();
+    if (!duel.playerHp) {
+      finishDuelRound(false, duel.opponent.name + '打出 ' + damage + ' 點傷害，擊倒你的寶可夢。');
+      return;
+    }
+    el('duelMessage').textContent = duel.opponent.name + '先攻！受到 ' + damage + ' 點傷害，繼續連打！';
   }
 
   function resolveDuelAttack(tier) {
     const damage = Math.round(attackCaps[starsFor(duel.player)] * tier.power);
-    const counterScale = .26 + .17 * (1 - tier.power) / .65;
     duel.opponentHp = Math.max(0, duel.opponentHp - damage);
-    const counter = duel.opponentHp ? Math.round(attackCaps[starsFor(duel.opponent)] * counterScale) : 0;
-    duel.playerHp = Math.max(0, duel.playerHp - counter);
-    const playerImage = el('duelPlayerImage');
-    const opponentImage = el('duelImage');
-    playDuelStrike(playerImage, opponentImage, el('duelOpponentImpact'), damage, 1, 0, !duel.opponentHp);
-    if (counter) playDuelStrike(opponentImage, playerImage, el('duelPlayerImpact'), counter, -1, 210, !duel.playerHp);
+    playDuelStrike(el('duelPlayerImage'), el('duelImage'), el('duelOpponentImpact'), damage, 1, 0, !duel.opponentHp);
     renderDuel();
-    if (duel.opponentHp && duel.playerHp) {
-      el('duelMessage').textContent = tier.label + ' · 攻擊 ' + damage + '，對手反擊 ' + counter + '。';
+    if (!duel.opponentHp) {
+      finishDuelRound(true, '獲勝，已收服對手。最後一擊 ' + damage + '。');
       return;
     }
+    el('duelMessage').textContent = tier.label + ' · 打出 ' + damage + ' 點傷害。再按攻擊開始下一回合。';
+  }
+
+  function finishDuelRound(won, result) {
     duel.active = false;
+    if (duel.charge) {
+      cancelAnimationFrame(duel.charge.frame);
+      clearTimeout(duel.charge.timeout);
+      clearTimeout(duel.charge.opponentTimeout);
+      duel.charge = null;
+      el('chargeClock').textContent = '充能中斷';
+    }
     duel.tired.add(duel.player.id);
-    const won = duel.opponentHp === 0;
     if (won) {
       duel.wins++;
       collectPokemon(duel.opponent);
@@ -563,7 +587,6 @@
     duel.phase = finished ? 'finished' : 'between';
     renderDuelTeam();
     renderDuel();
-    const result = (won ? '獲勝，已收服對手。' : '這場輸了。') + '最後一擊 ' + damage + '。';
     const summary = '共打 ' + duel.round + ' 場，勝 ' + duel.wins + ' 場。';
     el('duelMessage').textContent = result + (duel.round === 3 ? summary : exhausted ? '全隊都累了，挑戰結束。' + summary : '請換另一隻隊員。');
     el('duelAttack').classList.add('hidden');
