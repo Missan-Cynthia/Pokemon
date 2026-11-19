@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#14213d">
   <title>寶可夢練習場</title>
+  <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="favicon-v2.ico">
   <link rel="apple-touch-icon" href="icon-v2.png">
   <style>
@@ -791,6 +792,13 @@
   el('collectionStartButton').addEventListener('click',openCollection);el('collectionBattleButton').addEventListener('click',openCollection);el('collectionBackButton').addEventListener('click',closeCollection);el('collectionSearch').addEventListener('input',event=>renderCollection(event.target.value));el('deleteButton').addEventListener('click',deleteInput);el('clearButton').addEventListener('click',clearInput);buildKeyboard();updateDex();renderInput();
   window.__POKEMON_ZHUYIN_TEST__={startEncounterById:(id,scene)=>{showMode('catch');startEncounter(id,scene)},press:key=>{const normalized=normalizePhysical(key);if(KEY_MAP.has(normalized))handleMappedKey(normalized);else if(key===' ')commitWithSpace()},typeKeys:keys=>[...keys].forEach(key=>window.__POKEMON_ZHUYIN_TEST__.press(key)),forceTimeout:escapePokemon,openCollection,closeCollection,renderCollection,setCaughtIds:ids=>{caughtIds=new Set(ids.map(Number));saveCaught();updateDex()},state:()=>({id:current?.id,hp,targetIndex,composing,targets:targets.map(x=>({...x})),scene:SCENES[lastScene]?.[0],caughtIds:[...caughtIds],collectionOpen:!el('collectionScreen').classList.contains('hidden')})};
 })();
+</script>
+<script>
+  if ('serviceWorker' in navigator && location.protocol === 'https:') {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js').catch(error => console.warn('PWA cache initialization failed', error));
+    }, { once: true });
+  }
 </script>
 </body>
 </html>

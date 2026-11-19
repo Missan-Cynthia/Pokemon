@@ -1,0 +1,16 @@
+{
+  "id": "/Pokemon/",
+  "name": "寶可夢練習場",
+  "short_name": "寶可夢練習場",
+  "description": "注音、九九乘法和寶可夢組隊對戰",
+  "lang": "zh-Hant",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#e8eef7",
+  "theme_color": "#14213d",
+  "icons": [
+    { "src": "pwa-192.png", "type": "image/png", "sizes": "192x192" },
+    { "src": "pwa-512.png", "type": "image/png", "sizes": "512x512" }
+  ]
+}
