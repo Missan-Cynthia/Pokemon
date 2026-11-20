@@ -212,6 +212,7 @@
         <p id="duelMessage" class="message" role="status"></p>
       </div>
     </div>
+    <button id="duelCollection" class="secondary hidden">查看收藏</button>
     <button id="duelNext" class="back-button hidden"></button>
   </section>
   <section id="mathScreen" class="math-card hidden" aria-labelledby="mathTitle">
@@ -350,6 +351,7 @@
     el('duelTeam').classList.add('hidden');
     el('duelField').classList.add('hidden');
     el('duelNext').classList.add('hidden');
+    el('duelCollection').classList.add('hidden');
     renderTeamOptions();
   }
 
@@ -394,6 +396,7 @@
     el('duelTeam').classList.remove('hidden');
     el('duelField').classList.add('hidden');
     el('duelNext').classList.add('hidden');
+    el('duelCollection').classList.add('hidden');
     const opponent = duel.opponents[duel.round];
     el('duelScore').textContent = '選擇第 ' + (duel.round + 1) + ' 場隊員 · 對手 ' + opponent.name + ' ' + gradeLabel(opponent);
     renderDuelTeam();
@@ -563,7 +566,7 @@
     playDuelStrike(el('duelPlayerImage'), el('duelImage'), el('duelOpponentImpact'), damage, 1, 0, !duel.opponentHp);
     renderDuel();
     if (!duel.opponentHp) {
-      finishDuelRound(true, '獲勝，已收服對手。最後一擊 ' + damage + '。');
+      finishDuelRound(true, '最後一擊 ' + damage + '。');
       return;
     }
     el('duelMessage').textContent = tier.label + ' · 打出 ' + damage + ' 點傷害。再按攻擊開始下一回合。';
@@ -581,7 +584,9 @@
     duel.tired.add(duel.player.id);
     if (won) {
       duel.wins++;
-      collectPokemon(duel.opponent);
+      const added = collectPokemon(duel.opponent);
+      result = '獲勝！' + duel.opponent.name + (added ? '已加入我的收藏。' : '已在我的收藏。') + result;
+      el('duelCollection').classList.remove('hidden');
     }
     const exhausted = duel.tired.size === duel.team.length;
     const finished = duel.round === 3 || exhausted;
@@ -677,7 +682,7 @@
     el('collectionGrid').innerHTML=visible.length?visible.map(item=>`<article class="collection-card"><img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.name)}" loading="lazy"><div class="collection-number">#${String(item.id).padStart(4,'0')}</div><div class="collection-name">${escapeHtml(item.name)}</div><div>${gradeLabel(item)}</div><div class="collection-zhuyin">${escapeHtml(item.zhuyin.zhuyinText)}</div></article>`).join(''):`<div class="collection-empty">${all.length?'找不到符合的收藏。':'還沒有收藏，先去收服第一隻寶可夢吧！'}</div>`;
   }
   function openCollection(){collectionReturnWasBattle=!el('battleScreen').classList.contains('hidden');if(collectionReturnWasBattle&&!locked)stopTimer();el('collectionSearch').value='';renderCollection();el('collectionScreen').classList.remove('hidden');el('collectionSearch').focus()}
-  function closeCollection(){el('collectionScreen').classList.add('hidden');if(collectionReturnWasBattle&&(mode==='catch'||mode==='zhuyin')&&current&&!locked&&timeLeft>0)startTimer()}
+  function closeCollection(){el('collectionScreen').classList.add('hidden');if(mode==='duel')el('duelCollection').focus();if(collectionReturnWasBattle&&(mode==='catch'||mode==='zhuyin')&&current&&!locked&&timeLeft>0)startTimer()}
   function stripTone(value){return value.replace(/^˙|[ˊˇˋ]$/g,'')}function getTone(value){if(value.startsWith('˙'))return '˙';const m=value.match(/[ˊˇˋ]$/);return m?m[0]:''}function formatInput(body,tone=''){return tone==='˙'?tone+body:body+tone}
   function buildKeyboard(){const keyboard=el('keyboard');KEY_ROWS.forEach(row=>{const line=document.createElement('div');line.className=`key-row row-${row.length}`;row.forEach(([physical,zhuyin])=>{const button=document.createElement('button');button.type='button';button.className='key'+(TONES.has(zhuyin)?' tone':'');button.dataset.physical=physical;button.innerHTML=`<span class="key-physical">${physical}</span><span class="key-zhuyin">${zhuyin}</span>`;button.setAttribute('aria-label',`${physical} 鍵，${zhuyin}`);button.addEventListener('click',()=>handleMappedKey(physical));line.appendChild(button)});keyboard.appendChild(line)})}
   function flashKey(key){const button=document.querySelector(`.key[data-physical="${CSS.escape(key)}"]`);if(!button)return;button.classList.add('pressed');setTimeout(()=>button.classList.remove('pressed'),130)}function normalizePhysical(key){if(key.length===1&&/[a-z]/i.test(key))return key.toUpperCase();return key}
@@ -775,6 +780,13 @@
     if (mode !== 'duel' || duel.phase !== 'setup' || !duel.selected.size) return;
     duel.team = duel.options.filter(pokemon => duel.selected.has(pokemon.id));
     chooseDuelMember();
+  });
+  el('duelCollection').addEventListener('click', () => {
+    openCollection();
+    const query = '#' + String(duel.opponent.id).padStart(4, '0');
+    el('collectionSearch').value = query;
+    renderCollection(query);
+    el('collectionBackButton').focus();
   });
   el('duelNext').addEventListener('click', () => {
     if (mode !== 'duel') return;
